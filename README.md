@@ -1,2 +1,12 @@
-# gtm-serv-var-template__ip-truncator
-This variable template for Google Tag Manager Server side takes an IP adress as input and will throw any truncation type depending on your 3rd party tools needs.
+# GTM Server - Variable template - IP Address Truncate
+
+## 🚀 How It Works
+- Download the .tpl file.
+- Import it into the Templates section of your Server-side GTM container.
+- Create a new variable using the imported template :
+  - Select the desired IPV4 truncation level.
+  - IP source field :
+    - Leave empty to use the default ip_override (at least sent with GA4 events).
+    - Or, select the variable that contains your custom IP address.
+
+✅ That's it — you're all set !
