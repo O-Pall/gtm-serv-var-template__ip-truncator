@@ -1,4 +1,12 @@
-﻿___INFO___
+﻿___TERMS_OF_SERVICE___
+
+By creating or modifying this file you agree to Google Tag Manager's Community
+Template Gallery Developer Terms of Service available at
+https://developers.google.com/tag-manager/gallery-tos (or such other URL as
+Google may provide), as modified from time to time.
+
+
+___INFO___
 
 {
   "type": "MACRO",
@@ -55,65 +63,50 @@ ___TEMPLATE_PARAMETERS___
 ___SANDBOXED_JS_FOR_SERVER___
 
 const logToConsole = require("logToConsole");
-const makeNumber = require("makeNumber");
 const getAllEventData = require("getAllEventData");
 
-const eventData = getAllEventData(); // Retrieve event data
-const ip = data.ip_address; // Fallback to IP address
-const truncateRule = data.truncate_rule; // Selected truncation rule
+// Retrieve event data and select the IP address (custom or fallback)
+const eventData = getAllEventData();
+const ip = data.ip_address || eventData.ip_override;
+const truncateRule = data.truncate_rule;
 
-// Debugging
 logToConsole("IP Address: " + ip);
 logToConsole("Truncate Rule: " + truncateRule);
 
 if (!ip) {
   logToConsole("No IP address provided.");
-  return "Invalid IP Address"; // Return a string, not a boolean
-}
-
-// Split the IP into parts
-const ipParts = ip.split(".");
-if (ipParts.length !== 4) {
-  logToConsole("Invalid IP format: " + ip);
-  return "Invalid IP Address"; // Return string if IP format is incorrect
-}
-
-// Validate that all parts are numeric
-if (ipParts.some(part => makeNumber(part) === null)) {
-  logToConsole("Non-numeric IP parts found: " + ip);
   return "Invalid IP Address";
 }
 
-// Apply truncation based on the selected rule
-let truncatedIP;
-switch (truncateRule) {
-  case "4_bytes":
-    truncatedIP = ip; // No truncation
-    break;
-  case "3_bytes":
-    ipParts[3] = "0";
-    truncatedIP = ipParts.join(".");
-    break;
-  case "2_bytes":
-    ipParts[2] = "0";
-    ipParts[3] = "0";
-    truncatedIP = ipParts.join(".");
-    break;
-  case "1_bytes":
-    ipParts[1] = "0";
-    ipParts[2] = "0";
-    ipParts[3] = "0";
-    truncatedIP = ipParts.join(".");
-    break;
-  default:
-    logToConsole("Invalid Truncate Rule: " + truncateRule);
-    return "Invalid Rule";
+// Split the IP into its 4 parts
+const ipParts = ip.split(".");
+if (ipParts.length !== 4) {
+  logToConsole("Invalid IP format: " + ip);
+  return "Invalid IP Address";
 }
 
-// Debug final output
-logToConsole("Truncated IP Address: " + truncatedIP);
+// Define a simple mapping for truncation rules.
+// The number represents how many octets to keep.
+const rules = {
+  "4_bytes": 4,
+  "3_bytes": 3,
+  "2_bytes": 2,
+  "1_bytes": 1
+};
 
-// Return the final truncated IP
+const keepCount = rules[truncateRule];
+if (!keepCount) {
+  logToConsole("Invalid Truncate Rule: " + truncateRule);
+  return "Invalid Rule";
+}
+
+// For the octets that should be truncated, replace them with "0"
+for (let i = keepCount; i < 4; i++) {
+  ipParts[i] = "0";
+}
+
+const truncatedIP = ipParts.join(".");
+logToConsole("Truncated IP Address: " + truncatedIP);
 return truncatedIP;
 
 
@@ -216,6 +209,6 @@ scenarios:
 
 ___NOTES___
 
-Created on 19/02/2025 15:30:20
+Created on 19/02/2025 19:23:32
 
 
